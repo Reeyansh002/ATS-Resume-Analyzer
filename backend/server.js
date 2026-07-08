@@ -1,11 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const pool = require('./config/db.js'); // it connects server.js to db.js
+const authRoutes = require('./routes/authRoutes');
 
 const app = express(); //This creates server application
 
 app.use(cors()); //This enables Resource Sharing between frontend and backend
 app.use(express.json()); //It tells the express whenever clint send the json data convert it into javascript object
+app.use('/api/auth',authRoutes);
 
 app.get('/', async (req,res) =>{
     try {
