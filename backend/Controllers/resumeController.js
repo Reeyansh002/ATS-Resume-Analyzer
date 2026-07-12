@@ -2,6 +2,13 @@ const { execFile } = require("child_process");
 const path = require("path");
 const pool = require("../config/db");
 
+const {
+    extractSkills,
+    calculateATSScore,
+    getMissingSkills,
+    generateSuggestions
+} = require("../utils/atsAnalyzer");
+
 const uploadResume = async (req, res) => {
     try {
         if (!req.file) {
@@ -36,12 +43,25 @@ const uploadResume = async (req, res) => {
                         error: error.message
                     });
                 }
+const foundSkills = extractSkills(stdout);
+const atsScore = calculateATSScore(foundSkills);
+const missingSkills = getMissingSkills(foundSkills);
 
-                res.status(201).json({
-                    message: "Resume uploaded successfully",
-                    resume: result.rows[0],
-                    extractedText: stdout
-                });
+
+const suggestions = generateSuggestions(
+    stdout,
+    missingSkills
+);
+
+res.status(201).json({
+    message: "Resume uploaded successfully",
+    resume: result.rows[0],
+    atsScore,
+    foundSkills,
+    missingSkills,
+    suggestions,
+    extractedText: stdout
+});
             }
         );
 
